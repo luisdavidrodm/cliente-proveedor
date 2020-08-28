@@ -1,0 +1,499 @@
+%%HP: T(0)A(D)F(.);
+@ Argumentos:
+@ Autor:
+@ E-mail:
+@ VersiÛn:
+@ Creado con HPUserEdit 6
+
+@ %NAME%=
+@ %DIR%=
+
+DIR
+ 
+@ MENU PRINCIPAL
+MAINM
+´
+PUSH TITLE
+"MENU PRINCIPAL"
+{
+{ "1.REVISAR CLIENTE" 1 }
+{ "2.REVISAR PROVEEDOR" 2 }
+{ "3.EDITAR BASE DE DATOS" 3 }
+{ "4.CONFIGURACION" 4 }
+}
+1
+CHOOSE
+IF
+THEN 
+ç MM
+  ´
+  CASE
+  MM 1 == THEN REVIC END
+  MM 2 == THEN REVIP END
+  MM 3 == THEN EDITA END
+  CONFIG END  
+  ª  
+ELSE
+POP
+"CERRANDO PROGRAMA...
+Dev by SpaceRM." MSGBOX
+END
+ª
+
+@ MENU DE EDICION
+EDITA
+´
+"MENU DE EDICION"
+{
+{ "1.AGREGAR CLIENTE" 1 }
+{ "2.AGREGAR PROVEEDOR" 2 }
+{ "3.BORRAR CLIENTE" 3 }
+{ "4.BORRAR PROVEEDOR" 4 }
+}
+1
+CHOOSE
+IF
+THEN
+ç EDI
+  ´
+  CASE
+  EDI 1 == THEN
+    IF { } BASEP SAME
+    THEN "ATENCION: Debe agregar al menos un Proveedor primero." MSGBOX EDITA  
+    ELSE AGGCL                    
+    END
+  END    
+  EDI 2 == THEN AGGPR END
+  EDI 3 == THEN 
+    IF { } BASEC SAME
+    THEN "ATENCION: Debe agregar al menos un Cliente primero." MSGBOX EDITA
+    ELSE BORCL
+    END 
+  END
+    IF { } BASEP SAME
+    THEN "ATENCION: Debe agregar al menos un Proveedor primero." MSGBOX EDITA
+    ELSE BORPR
+    END       
+  END
+  ª  
+ELSE
+MAINM
+END
+ª
+
+@ CONFIGURACION
+CONFIG
+´
+"TAMA—O DE FUENTE"
+{
+{ "1.PEQUE—A" 1 }
+{ "2.GRANDE" 0 }
+}
+EVAL
+  IF PREFE 1 GET 0 ==
+  THEN
+  EVAL SWAP " û" + SWAP 2 çLIST 2 çLIST
+  ELSE
+  SWAP EVAL SWAP " û" + SWAP 2 çLIST SWAP 2 çLIST
+  END          
+1 CHOOSE
+  IF
+  THEN
+  ç CO
+    ´ 
+    CASE
+    CO 1 == THEN PREFE 1 CO LISTC 'PREFE' STO
+    "Se ha cambiado el tamaÒo de fuente de resultados a PEQUE—O." MSGBOX
+    CONFIG
+    END
+    PREFE 1 CO LISTC 'PREFE' STO
+    "Se ha cambiado el tamaÒo de fuente de resultados a GRANDE." MSGBOX
+    CONFIG    
+    END
+    ª
+  ELSE
+  MAINM
+  END
+ª
+
+@ REVISA UN PROVEEDOR
+REVIP
+´ "PROVEEDOR" 'PROID' 'PROGET' 'BASEP' 'REVIP' REVIS ª
+
+@ REVISA UN CLIENTE
+REVIC
+´ "CLIENTE" 'CLID' 'CLIGET' 'BASEC' 'REVIC' REVIS ª
+
+@ REVISA UN CLIENTE O PROVEEDOR
+REVIS
+´
+ç éNOMB éIDL éGET éBASE éREVI
+  ´
+  "
+INTRODUZCA RIF, CEDULA, NOMBRE
+O ESTADO DEL " éNOMB + "." +
+  "  
+
+ESCRIBE EXIT PARA SALIR." +
+  {å}
+  INPUT
+  PREFE 1 GET DEPTH 2 -
+  ç éION éTFO éDIN
+    ´
+    IF éION "EXIT" == éION "SALIR" == OR
+    THEN MAINM
+    ELSE
+      IF éION STRç DEPTH éDIN - DUP 1 ==
+      THEN
+        DROP2
+        CASE
+        éIDL EVAL éION STRç POS DUP 0 ã
+        THEN éGET EVAL SCROLL éREVI EVAL END
+        DROP éBASE EVAL éION 1 SEARCH DUP {} ã
+        THEN éGET COPGES SCROLL éREVI EVAL END
+        DROP éBASE EVAL éION
+          IF éNOMB "CLIENTE" ==
+          THEN 3
+          ELSE 2
+          END
+        SEARCH DUP {} ã
+        THEN éGET COPGES SCROLL éREVI EVAL END 
+        END
+      ELSE
+        DROPN
+        CASE 
+        éBASE EVAL éION 1 SEARCH DUP {} ã
+        THEN éGET COPGES SCROLL éREVI EVAL END
+        DROP éBASE EVAL éION
+          IF éNOMB "CLIENTE" ==
+          THEN 3
+          ELSE 2
+          END
+        SEARCH DUP {} ã
+        THEN éGET COPGES SCROLL éREVI EVAL END
+        END
+      END
+      DROP "ATENCION: No se encontro esa Cedula, Rif, Nombre o Estado." MSGBOX
+      MAINM
+    END
+    ª
+  ª
+ª
+
+@ AGREGA UN CLIENTE
+AGGCL
+´
+"SELECCIONE PROVEEDOR"
+BASEP DUP SIZE
+ç éSIZE
+  ´
+  LISTç 1 SWAP FOR X
+  EVAL SWAP DROP DUP ROT " ç " + SWAP + SWAP 2 çLIST éSIZE ROLL
+  NEXT
+  éSIZE çLIST
+  ª
+1 CHOOSE
+IF NOT
+THEN TITLE EDITA
+END
+DUP BASEP PROID ROT POS GET 1 GET
+ç éIDP éNP
+  ´
+  PREFE 2 GET TYPE
+    IF 5 ã
+    THEN
+    PREFE 2 {"" "" 0} LISTC
+    END    
+  "PROVEEDOR: " éNP +
+  {
+  {"NOMBRE:" "Empresa o Distribuidor Cliente" 2}
+  {"ESTADO:" "Region del Cliente" 2}
+  {"ID:" "Cedula o Rif del Cliente" 0}
+  }
+  1
+  {}
+  PREFE 2 GET
+  INFORM
+    IF
+    THEN DUP PREFE 2 ROT LISTC 'PREFE' STO    
+      IF DUP 3 GET RçI CLID SWAP POS 0 ã 
+      THEN DROP "ATENCION: Esa Cedula o Rif ya pertenece a un cliente." MSGBOX AGGCL
+      ELSE EVAL RçI     
+      ç éNOM éEST éID
+        ´
+        BASEC LISTç éNOM éIDP éEST éID 4 çLIST SWAP 1 + çLIST 'BASEC' STO
+        CLID éID + 'CLID' STO
+        "Cliente agregado a " éNP + " satisfactoriamente." + MSGBOX AGGCL
+        ª           
+      END                                
+    ELSE TITLE EDITA    
+    END              
+  ª
+ª
+
+@ AGREGA UN PROVEEDOR
+AGGPR
+´
+PREFE 3 GET TYPE
+  IF 5 ã
+  THEN
+  PREFE 3 {"" "" 0} LISTC
+  END
+"INGRESE DATOS DEL PROVEEDOR"
+{
+{"NOMBRE:" "Empresa o Nombre del Proveedor" 2}
+{"ESTADO:" "Region del Proveedor" 2}
+{"ID:" "Cedula o Rif del Proveedor" 0}
+}
+1
+{}
+PREFE 3 GET
+INFORM
+  IF
+  THEN DUP PREFE 3 ROT LISTC 'PREFE' STO
+    IF DUP 3 GET RçI PROID SWAP POS 0 ã
+    THEN DROP "ATENCION: Esa Cedula o Rif ya pertenece a un proveedor." MSGBOX AGGPR
+    ELSE EVAL RçI
+    ç éNOM éEST éID
+      ´
+      BASEP LISTç éNOM éEST éID 3 çLIST SWAP 1 + çLIST 'BASEP' STO
+      PROID éID + 'PROID' STO
+      "Proveedor '" éNOM + "' agregado satisfactoriamente." + MSGBOX AGGPR
+      ª
+    END                
+  ELSE TITLE EDITA
+  END
+ª
+
+@ BORRA UN CLIENTE
+BORCL
+´
+IF { } BASEC SAME
+THEN "ATENCION: Ha eliminado todos los clientes." MSGBOX TITLE EDITA
+ELSE
+"SELECCIONE CLIENTE"
+BASEC DUP SIZE
+ç éSIZE
+  ´
+  LISTç 1 SWAP FOR X
+  DUP 1 GET SWAP 4 GET DUP ROT " ç " + SWAP + SWAP 2 çLIST éSIZE ROLL
+  NEXT
+  éSIZE çLIST
+  ª
+1 CHOOSE
+  IF
+  THEN
+  "ATENCION: Borrar un cliente es una accion irreversible." MSGBOX  
+  "øBORRAR CLIENTE?"
+  {
+  { "1. SI" 1 }
+  { "2. NO" 2 }
+  }
+  1
+  CHOOSE
+    IF
+    THEN
+      IF 1 ==
+      THEN
+      CLID SWAP POS CLIER BORCL   
+      ELSE BORCL END        
+    ELSE BORCL END              
+  ELSE EDITA END
+END  
+ª
+
+@ BORRA UN PROVEEDOR
+BORPR
+´
+IF { } BASEP SAME
+THEN "ATENCION: Ha eliminado todos los proveedores." MSGBOX TITLE EDITA
+ELSE
+"SELECCIONE PROVEEDOR"
+BASEP DUP SIZE
+ç éSIZE
+  ´
+  LISTç 1 SWAP FOR X
+  EVAL SWAP DROP DUP ROT " ç " + SWAP + SWAP 2 çLIST éSIZE ROLL
+  NEXT
+  éSIZE çLIST
+  ª
+1 CHOOSE
+  IF
+  THEN
+  "ATENCION: Borrar un proveedor eliminara tambien todos sus clientes asociados." MSGBOX
+  "ATENCION: Borrar un proveedor es una accion irreversible." MSGBOX
+  "øBORRAR PROVEEDOR?"
+  {
+  { "1. SI" 1 }
+  { "2. NO" 2 }
+  }
+  1
+  CHOOSE
+    IF
+    THEN
+      IF 1 ==
+      THEN
+      PROID SWAP POS SEARP DUP      
+        IF { } SAME
+        THEN DROP
+        ELSE
+        LISTç 0 SWAP 1 - FOR X
+        X - CLIER
+        NEXT                   
+        END
+      DUP BASEP SWAP LISTR 'BASEP' STO PROID SWAP LISTR 'PROID' STO BORPR         
+      ELSE BORPR END
+    ELSE BORPR END
+  ELSE EDITA END
+END
+ª
+
+@ BUSCA UN ITEM EN UNA LISTA DE LISTAS EN DETERMINADA POSICION
+@ ARGUMENTOS: LISTA DE LISTAS, ITEM, POSICION 
+SEARCH
+´
+ç éITEM éPOS
+  ´
+    IF DUP {} SAME NOT
+    THEN
+    LISTç {} SWAP 1
+    FOR X
+      IF SWAP DUP éITEM POS éPOS ==
+      THEN DROP X +
+      ELSE DROP
+      END
+    -1 STEP
+    END        
+  ª    
+ª  
+
+@ BUSCA LOS CLIENTES DE UN PROVEEDOR
+@ ARGUMENTOS: POSICION DEL ID EN PROID
+SEARP
+´
+DUP BASEP SWAP GET 3 GET BASEC SWAP 2 SEARCH
+ª
+
+@ DADA UNA POSICION, ELIMINA UN CLIENTE
+@ ARGUMENTOS: POSICION DEL CLIENTE
+CLIER
+´
+DUP BASEC SWAP LISTR 'BASEC' STO CLID SWAP LISTR 'CLID' STO
+ª
+
+@ ESPERA UNA LISTA, UNA POSICION Y EL NUEVO ELEMENTO
+@ A COLOCAR EN LA LISTA
+LISTC
+´
+ç p r
+  ´ LISTç
+  ç t
+    ´ t 1 + p - ROLL LASTARG
+    r SWAP ROT DROP ROLLD t çLIST
+    ª
+  ª
+ª
+
+@ ESPERA UNA LISTA Y UNA POSICI”N PARA REMOVER
+LISTR
+´
+SWAP LISTç 2 + DUP ROLL OVER
+SWAP - ROLL DROP 3 - çLIST
+ª
+
+@ ESPERA UNA LISTA DE POSICIONES DE CLIENTES O PROVEEDORES,
+@ Y UN COMANDO ENTRE COMILLAS SIMPLES DEPENDIENDO DE SI
+@ SON PROVEEEDORES 'PROGET' O CLIENTES 'CLIGET'
+@ DEVUELVE LOS DATOS DE LOS CLIENTES O PROVEEDORES
+@ EN ESAS POSICIONES EN UN GROB
+COPGES
+´
+ç éCOP éCOM
+  ´
+  "[TOTAL RESULTADOS: " éCOP SIZE RçI + "]" + éTFO çGROB  
+  éCOP LISTç # 1 # 1 BLANK ROT ROT 1 FOR X
+  "[RESULTADO:" X RçI + "]" + éTFO çGROB SWAP
+  éCOM EVAL GROBADD "" éTFO çGROB GROBADD GROBADD SWAP
+  -1 STEP
+  GROBADD
+  ª
+ª
+
+@ ESPERA LA POSICION DEL CLIENTE
+@ DEVUELVE LOS DATOS DEL CLIENTE EN UN GROB
+CLIGET
+´
+BASEC SWAP GET EVAL PREFE 1 GET
+ç éNOM éPID éEST éCID éTFO
+  ´
+  "NOMBRE:" éNOM + éTFO çGROB
+  "ID:" éCID + éTFO çGROB GROBADD
+  "EDO:" éEST + éTFO çGROB GROBADD
+  "PROVEEDOR:" BASEP PROID éPID POS GET 1 GET + éTFO çGROB GROBADD
+  "ID PROV:" éPID + éTFO çGROB GROBADD
+  ª
+ª
+
+@ ESPERA LA POSICION DEL PROVEEDOR
+@ DEVUELVE LOS DATOS DEL PROVEEDOR EN UN GROB
+PROGET
+´
+SEARP BASEP ROT GET
+EVAL PREFE 1 GET
+ç éCLI éNOM éEST éPID éTFO
+  ´
+  "" éTFO çGROB
+  "NOMBRE:" éNOM + éTFO çGROB GROBADD
+  "ID:" éPID + éTFO çGROB GROBADD
+  "EDO:" éEST + éTFO çGROB GROBADD
+  "CLIENTES:" éCLI SIZE RçI + éTFO çGROB GROBADD
+    IF éCLI { } SAME
+    THEN 
+    "<LISTA CLIENTES>" éTFO çGROB
+    "NINGUNO" éTFO çGROB GROBADD SWAP 
+    ELSE      
+    éCLI LISTç "<LISTA CLIENTES>" éTFO çGROB ROT ROT 1 FOR X
+    BASEC SWAP GET DUP 4 GET RçI çSTR " ç " + SWAP DUP 1 GET ROT SWAP + " ç " + 
+    SWAP 3 GET + éTFO çGROB GROBADD SWAP 
+    -1 STEP
+    END
+  GROBADD        
+  ª
+ª
+
+@ FONDO
+TITLE
+´
+# 1 # 1 BLANK PICT STO { # 0d # 0d } PVIEW 0.01 WAIT
+ª
+
+@ IDS DE CLIENTES
+CLID
+{
+}
+
+@ DE CLIENTES: NOMBRE, PROVEEDOR, ESTADO, ID
+BASEC
+{
+}
+
+@ IDS DE PROVEEDORES
+PROID
+{
+}
+
+@ DE PROVEEDORES: NOMBRE, ESTADO, ID
+BASEP
+{
+}
+
+@ DATOS DE CONFIGURACION
+PREFE
+{
+1 {"" "" 0} {"" "" 0}
+}
+
+END
+
+HOME 'CLIEN' PGDIR
+'CLIEN' STO
